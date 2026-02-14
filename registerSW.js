@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/d-regi-editor/sw.js', { scope: '/d-regi-editor/' })})}
