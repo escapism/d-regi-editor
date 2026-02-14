@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import "./style.scss";
 import App from "./App.vue";
-import { createGtm, useGtm } from "@gtm-support/vue-gtm";
+import { createGtm } from "@gtm-support/vue-gtm";
 
 const app = createApp(App);
 

@@ -95,7 +95,7 @@ const { register: registerShortcuts } = useShortcuts(
   table,
   focusedRowIndex,
   dataRows,
-  { addRow, addRowAbove, handleRemove },
+  { addRow: () => addRow(true), addRowAbove, handleRemove },
 );
 
 let cleanupShortcuts: (() => void) | null = null;
