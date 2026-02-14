@@ -1,0 +1,16 @@
+export const CSV_HEADER = {
+  並び順: "sortOrder",
+  ID: "id",
+  タイトル: "title",
+  価格: "price",
+  在庫: "stock",
+  在庫無制限: "infiniteStock",
+  表示状態: "hidden",
+  発行日: "pubdate",
+  印刷費: "cost",
+  売上合計: "totalSalesAmount",
+  R18: "r18",
+  カテゴリー: "category",
+  ジャンル: "genre",
+  画像: "image",
+} as const;

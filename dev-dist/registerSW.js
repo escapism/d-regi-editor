@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/d-regi-editor/dev-sw.js?dev-sw', { scope: '/d-regi-editor/', type: 'classic' })
