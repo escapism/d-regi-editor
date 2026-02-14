@@ -1,5 +1,5 @@
 <template>
-  <button class="button-export" @click="exportJSON">
+  <button class="button-export" @click="exportJSON" :disabled="data.length === 0">
     <i-octicon-download-16 /> JSONエクスポート
   </button>
 </template>
@@ -14,6 +14,10 @@ const props = defineProps<{
 }>();
 
 const exportJSON = () => {
+  if (props.data.length === 0) {
+    alert("データがありません。");
+    return;
+  }
   try {
     const data = props.data.map((item, index) => {
       const convertedItem: any = { ...item, sortOrder: index };

@@ -1,5 +1,5 @@
 <template>
-  <button class="button-export" @click="exportCSV">
+  <button class="button-export" @click="exportCSV" :disabled="data.length === 0">
     <i-octicon-download-16 /> CSVエクスポート
   </button>
 </template>
@@ -16,6 +16,10 @@ const props = defineProps<{
 }>();
 
 const exportCSV = () => {
+  if (props.data.length === 0) {
+    alert("データがありません。");
+    return;
+  }
   try {
     let csv = Object.keys(CSV_HEADER).join(",") + "\n";
 

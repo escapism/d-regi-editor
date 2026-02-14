@@ -20,6 +20,12 @@ export type DefaultRow = {
 const INPUT_SELECTOR =
   "input:not([disabled],[readonly],[type=file]),button:not([disabled])";
 
+/** Mac では Meta（Command）、Windows では Ctrl を修飾キーとして使用 */
+function isShortcutModifier(event: KeyboardEvent): boolean {
+  const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  return isMac ? event.metaKey : event.ctrlKey;
+}
+
 export function useShortcuts(
   table: Ref<HTMLTableElement | null>,
   focusedRowIndex: Ref<number>,
@@ -53,8 +59,8 @@ export function useShortcuts(
 
   const setupDocumentShortcuts = () => {
     const onKeydown = (event: KeyboardEvent) => {
-      // 新規追加 (Cmd+;)
-      if (event.metaKey && (event.key === ";" || event.key === "+")) {
+      // 新規追加 (Mac: Cmd+;/+ / Windows: Ctrl+;/+)
+      if (isShortcutModifier(event) && (event.key === ";" || event.key === "+")) {
         event.preventDefault();
         event.stopPropagation();
         if (focusedRowIndex.value !== -1) {
@@ -65,8 +71,8 @@ export function useShortcuts(
         return;
       }
 
-      // 削除 (Cmd+-)
-      if (event.metaKey && event.key === "-") {
+      // 削除 (Mac: Cmd+- / Windows: Ctrl+-)
+      if (isShortcutModifier(event) && event.key === "-") {
         event.preventDefault();
         event.stopPropagation();
         if (focusedRowIndex.value !== -1) {
@@ -75,9 +81,9 @@ export function useShortcuts(
         return;
       }
 
-      // Cmd+カーソルキーでセルフォーカス移動（キー押しっぱなしで連続移動）
+      // 修飾キー+カーソルキーでセルフォーカス移動（Mac: Cmd / Windows: Ctrl）
       if (
-        event.metaKey &&
+        isShortcutModifier(event) &&
         (event.key === "ArrowUp" ||
           event.key === "ArrowDown" ||
           event.key === "ArrowLeft" ||
