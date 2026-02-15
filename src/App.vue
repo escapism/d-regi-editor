@@ -37,6 +37,8 @@ const tableContainer = useTemplateRef<HTMLDivElement>("tableContainer");
 const removeMode = ref(false);
 const focusedRowIndex = ref(-1);
 
+const visited = localStorage.getItem("visited") ?? "";
+
 document.documentElement.setAttribute("data-theme", theme.value);
 
 const toggleTheme = () => {
@@ -130,6 +132,11 @@ let scrollRafId = 0;
 onMounted(() => {
   addRow(false);
   cleanupShortcuts = registerShortcuts();
+
+  if (!visited) {
+    openManual();
+    localStorage.setItem("visited", "1");
+  }
 
   const updateScrollX = () => {
     if (tableContainer.value && table.value) {
