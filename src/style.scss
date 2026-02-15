@@ -10,6 +10,7 @@
   --red: #ff4242;
   --green: #1c9d3c;
   --blue: #3f68f1;
+  --orange: orange;
   --color: #fff;
   --bg-color: #131416;
   --border-color: #393939;
@@ -18,6 +19,7 @@
   --disabled-color: #666;
   --site-padding: 1rem;
   --row-hover-color: #{rgba(#449dfb, 0.2)};
+  --manual-color: #8c8c8c;
 
   box-sizing: border-box;
   color: var(--color);
@@ -50,6 +52,7 @@
   --grey: #f0f0f0;
   --grey2: #e0e0e0;
   --disabled-color: #ccc;
+  --manual-color: #aaa;
   color-scheme: light;
 }
 
@@ -62,6 +65,14 @@ h1 {
   font-size: 1.5rem;
 }
 
+h2 {
+  margin: 2rem 0 1rem;
+  font-size: 1.25rem;
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
 img {
   max-width: 100%;
   height: auto;
@@ -70,7 +81,7 @@ img {
 
 svg {
   width: 1em;
-  vertical-align: top;
+  vertical-align: text-bottom;
   :where(button) & {
     display: block;
     margin: auto;
@@ -97,17 +108,16 @@ tr {
   grid-column: 1 / -1;
 }
 
-thead {
-  th {
+tr {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  thead & {
     position: sticky;
     top: 0;
-    z-index: 10;
-    background: var(--grey);
+    z-index: 100;
   }
-}
-
-tbody {
-  tr {
+  tbody & {
     user-select: none;
     -webkit-user-select: none;
 
@@ -116,6 +126,11 @@ tbody {
         background-color: var(--row-hover-color);
       }
     }
+  }
+
+  // ドラッグ中はテーブル外に移るため subgrid が効かずセルが縦並びになるのを防ぐ（主にスマホ）
+  &.sortable-drag {
+    grid-auto-flow: column;
   }
 }
 
@@ -136,6 +151,9 @@ th {
   text-align: center;
   &:first-child {
     padding: 0;
+  }
+  thead & {
+    background: var(--grey);
   }
 }
 td {
@@ -168,6 +186,23 @@ td {
       }
     }
   }
+}
+
+dt,
+dd {
+  margin: 0;
+}
+
+dt {
+  margin-bottom: 0.25em;
+  font-weight: 700;
+  dd + & {
+    margin-top: 0.75em;
+  }
+}
+
+dd {
+  margin-left: 1em;
 }
 
 input,
@@ -220,7 +255,7 @@ button {
 
 .button {
   &-theme {
-    box-shadow: 0 0 0 1px #666;
+    box-shadow: 0 0 0 1px #666 inset;
     background-color: var(--bg-color);
     color: var(--color);
   }
@@ -240,6 +275,14 @@ button {
   &-import {
     input {
       display: none;
+    }
+  }
+  &-manual {
+    padding-inline: 0.2857143em;
+    background: var(--manual-color);
+    color: #fff;
+    svg {
+      font-size: 1.4286em;
     }
   }
 }
@@ -305,6 +348,22 @@ input[type="checkbox"] {
   }
 }
 
+[role="dialog"],
+[role="alertdialog"] {
+  width: 90%;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow: auto;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow:
+    0 0 0 0.5px var(--border-color),
+    0 0.625em 1.5em rgba(0, 0, 0, 0.2);
+  background: var(--bg-color);
+  color: var(--color);
+}
+
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -328,11 +387,13 @@ input[type="checkbox"] {
   padding: var(--site-padding);
   padding-inline: calc(var(--site-padding) + env(safe-area-inset-left));
   padding-bottom: 0;
+  font-size: 0.9375em;
   @media screen and (min-width: 768px) {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-auto-flow: column;
     align-items: center;
+    font-size: 1em;
   }
 }
 
@@ -367,7 +428,9 @@ input[type="checkbox"] {
 }
 
 .table-container {
+  --scroll-x: 375px;
   width: 100%;
+  height: 100%;
   overflow: auto;
 }
 
@@ -397,13 +460,28 @@ input[type="checkbox"] {
   }
 }
 
+.sortable-col {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  cursor: pointer;
+  .context-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 100%;
+  }
+}
+
 .clear-rows {
   background: var(--red);
 }
 
 .col-index {
   width: 2.25rem;
-  background: transparent;
+  background: var(--bg-color);
   box-shadow: none;
 }
 
@@ -411,7 +489,7 @@ input[type="checkbox"] {
   display: flex;
   position: sticky;
   left: var(--site-padding);
-  z-index: 100;
+  z-index: 20;
   align-items: center;
   justify-content: center;
   align-self: center;
@@ -444,17 +522,21 @@ input[type="checkbox"] {
 }
 
 .floating-title {
-  position: fixed;
-  left: calc(var(--site-padding) + 2.25rem);
-  z-index: 10;
-  opacity: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
   max-width: 12.5em;
+  height: fit-content;
   overflow: hidden;
-  margin-top: -2.5em;
+  opacity: 0;
+  margin: auto;
   padding: 0.25em;
   border-radius: 0.25em;
   background: var(--grey);
   box-shadow: 0 0 0 1px var(--border-color);
+  translate: var(--scroll-x) 0;
   transition: opacity 0.2s ease-in-out;
   font-size: 0.75em;
   text-overflow: ellipsis;
@@ -462,7 +544,7 @@ input[type="checkbox"] {
   pointer-events: none;
   &:empty {
     display: none;
-  } 
+  }
   .title-stuck & {
     opacity: 1;
   }
@@ -524,16 +606,16 @@ input[type="checkbox"] {
 
 .overlay {
   display: flex;
-  align-items: center;
-  justify-content: center;
   position: fixed;
   top: 0;
+  right: 0;
+  bottom: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  background: rgba(#000, 0.65);
   backdrop-filter: blur(1px);
-  z-index: 1000;
 }
 
 .image-preview {
@@ -577,11 +659,66 @@ input[type="checkbox"] {
   }
 }
 
-.lightbox-enter-active,
-.lightbox-leave-active {
+.alert-dialog {
+  display: grid;
+  grid-template-areas: "content" "actions";
+  grid-template-rows: 1fr auto;
+  gap: 1.25em 0;
+  max-width: 400px;
+  overflow: hidden;
+  p {
+    margin: 0;
+    font-size: 0.9375em;
+    white-space: pre-line;
+    text-align: inherit;
+  }
+  strong {
+    font-weight: inherit;
+  }
+}
+
+.manual-dialog {
+  .button-close {
+    margin: 1.5rem auto 0;
+  }
+  @media screen and (min-width: 768px) {
+    width: 40rem;
+  }
+}
+
+.dialog-content {
+  grid-area: content;
+  height: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  grid-area: actions;
+  justify-content: end;
+  gap: 1em;
+  button {
+    padding: 0;
+    background: transparent;
+    color: #3b90ff;
+    font-size: 0.9375em;
+    @media (pointer: fine) {
+      &:focus {
+        outline: 1px solid var(--orange);
+        border-radius: 0.25em;
+      }
+    }
+  }
+}
+
+.dialog-ok {
+  font-weight: 700;
+}
+
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.lightbox-enter-from,
-.lightbox-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }

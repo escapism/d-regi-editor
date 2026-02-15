@@ -1,5 +1,5 @@
 <template>
-  <Transition name="lightbox">
+  <Transition name="fade">
   <div v-show="active" class="overlay" @click="close">
     <div class="image-preview">
       <img :src="image" alt="image" />
@@ -18,12 +18,12 @@ const image = ref<string>("");
 const open = (previewImage: string) => {
   active.value = true;
   image.value = previewImage;
-  gtmTrackEvent("lightbox_opened");
+  gtmTrackEvent("lightbox_open");
 }
 
 const close = () => {
   active.value = false;
-  gtmTrackEvent("lightbox_closed");
+  gtmTrackEvent("lightbox_close");
 }
 
 defineExpose({

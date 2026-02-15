@@ -1,4 +1,5 @@
 import type { Ref } from "vue";
+import { isMac } from "@/utils/ChekingHelper";
 
 export type DefaultRow = {
   key: number | null;
@@ -22,8 +23,7 @@ const INPUT_SELECTOR =
 
 /** Mac では Meta（Command）、Windows では Ctrl を修飾キーとして使用 */
 function isShortcutModifier(event: KeyboardEvent): boolean {
-  const isMac = typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
-  return isMac ? event.metaKey : event.ctrlKey;
+  return isMac() ? event.metaKey : event.ctrlKey;
 }
 
 export function useShortcuts(
