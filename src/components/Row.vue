@@ -1,5 +1,5 @@
 <template>
-  <tr 
+  <tr
     @contextmenu="onContextMenu"
     @mousedown="onMouseDown"
     @touchstart="onTouchStart"
@@ -7,12 +7,17 @@
     @touchmove="onTouchMove"
     @focusin="onFocusIn"
     @focusout="onFocusOut"
-    >
+  >
     <td v-show="!removeMode" class="index drag-handle">
       {{ index + 1 }}
     </td>
     <td v-show="removeMode" class="index remove-row">
-      <button :disabled="!removeMode" class="button-remove" @click="handleRemoveRow" aria-label="行を削除">
+      <button
+        :disabled="!removeMode"
+        class="button-remove"
+        @click="handleRemoveRow"
+        aria-label="行を削除"
+      >
         <i-octicon-trash-24 />
       </button>
     </td>
@@ -36,7 +41,12 @@
     </td>
     <td>
       <label class="checkbox">
-        <input type="checkbox" v-model="row.hidden" :true-value="false" :false-value="true" />
+        <input
+          type="checkbox"
+          v-model="row.hidden"
+          :true-value="false"
+          :false-value="true"
+        />
       </label>
     </td>
     <td>
@@ -76,11 +86,8 @@
             ref="imageInput"
             @change="handleImageChange"
           />
-          <button
-            class="button-select"
-            @click="handleSelectImage"
-          >
-            {{ row.image ? "画像を変更" : "画像を選択"}}
+          <button class="button-select" @click="handleSelectImage">
+            {{ row.image ? "画像を変更" : "画像を選択" }}
           </button>
         </div>
         <button
@@ -118,6 +125,7 @@ const emit = defineEmits<{
 }>();
 
 const openLightBox = inject<(image: string) => void>("openLightBox");
+const openDialog = inject<(opts?: { message?: string; type?: string } | string) => Promise<boolean>>("openDialog");
 
 const handlePreview = () => {
   openLightBox?.(props.row.image);
@@ -126,14 +134,20 @@ const handlePreview = () => {
 const category = computed({
   get: () => props.row.terms?.category?.join(",") ?? "",
   set: (value) => {
-    props.row.terms.category = value.split(",").map((item: string) => item.trim()).filter((item: string) => item !== "");
+    props.row.terms.category = value
+      .split(",")
+      .map((item: string) => item.trim())
+      .filter((item: string) => item !== "");
   },
 });
 
 const genre = computed({
-  get: () => props.row.terms?.genre?.join(",") ?? "",  
+  get: () => props.row.terms?.genre?.join(",") ?? "",
   set: (value) => {
-    props.row.terms.genre = value.split(",").map((item: string) => item.trim()).filter((item: string) => item !== "");
+    props.row.terms.genre = value
+      .split(",")
+      .map((item: string) => item.trim())
+      .filter((item: string) => item !== "");
   },
 });
 
@@ -154,8 +168,10 @@ const handleImageChange = async () => {
   }
 };
 
-const handleRemoveImage = () => {
-  if (!confirm("この画像を削除してよろしいですか？")) return;
+const handleRemoveImage = async () => {
+  const message = (props.row.title ? `「${props.row.title}」` : "このアイテム") + "の画像を削除してよろしいですか？";
+  if (!(await openDialog?.({ message, type: "confirm" }))) return;
+
   if (imageInput.value) {
     imageInput.value.value = "";
   }
@@ -191,7 +207,7 @@ const TOUCH_MOVE_THRESHOLD = 10; // 10px以上移動したら長押しをキャ�
 const onTouchStart = (event: TouchEvent) => {
   // ドラッグハンドルでのタッチは無視
   const target = event.target as HTMLElement;
-  if (target.closest('.drag-handle')) {
+  if (target.closest(".drag-handle")) {
     return;
   }
 

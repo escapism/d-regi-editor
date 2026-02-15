@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div
-      v-if="visible"
+      v-show="visible"
       ref="menuRef"
       class="context-menu"
       :style="{ left: x + 'px', top: y + 'px' }"

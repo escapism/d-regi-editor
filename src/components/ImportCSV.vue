@@ -2,15 +2,21 @@
   <label class="button-import"
     ><i-octicon-upload-16 /> CSVインポート
     <input type="file" accept="text/csv" @change="importCSV"
-  /></label>
+      ref="fileInput"
+    />
+  </label>
 </template>
 
 <script setup lang="ts">
+import { useTemplateRef } from "vue";
 import Papa from "papaparse";
 import type { ParseResult } from "papaparse";
 import { DEFAULT_ROW } from "@/const/default";
 import { CSV_HEADER } from "@/const/csv";
+import { sanitizeDate } from "@/utils/dateHelper";
 import { gtmTrackEvent, gtmTrackError } from "@/utils/gtm.ts";
+
+const fileInput = useTemplateRef("fileInput");
 
 const emit = defineEmits<{
   (e: "import", data: (typeof DEFAULT_ROW)[]): void;
@@ -41,6 +47,8 @@ const importCSV = (event: Event) => {
                 newKey === "r18"
               ) {
                 convertedRow[newKey] = value == 0 ? false : true;
+              } else if (newKey === "pubdate") {
+                convertedRow[newKey] = sanitizeDate(value as string);
               } else {
                 const stringValue = String(value || '');
                 if (isFinite(Number(stringValue)) && stringValue !== '') {
@@ -62,6 +70,8 @@ const importCSV = (event: Event) => {
     console.error(error);
     gtmTrackError("import_csv");
     alert("CSVのインポートに失敗しました。");
+  } finally {
+    (fileInput.value as HTMLInputElement).value = "";
   }
 };
 </script>
