@@ -8,31 +8,43 @@
     @focusin="onFocusIn"
     @focusout="onFocusOut"
   >
-    <td v-show="!removeMode" class="index drag-handle">
-      {{ index + 1 }}
-    </td>
-    <td v-show="removeMode" class="index remove-row">
+    <td class="index">
+      <div v-show="!removeMode" class="row-number drag-handle">
+        {{ index + 1 }}
+      </div>
       <button
+        v-show="removeMode"
         :disabled="!removeMode"
-        class="button-remove"
+        class="button-remove remove-row"
         @click="handleRemoveRow"
         aria-label="行を削除"
       >
         <i-octicon-trash-24 />
       </button>
+
+      <div class="floating-title" aria-hidden="true">{{ row.title }}</div>
     </td>
     <td class="col-title">
       <input type="text" v-model="row.title" class="input-title" />
-      <div class="floating-title" aria-hidden="true">{{ row.title }}</div>
     </td>
     <td>
       <div class="with-unit">
-        <input type="number" inputmode="numeric" v-model="row.price" />
+        <input
+          type="number"
+          inputmode="numeric"
+          v-model="row.price"
+          @focus="selectAllText"
+        />
         <span>円</span>
       </div>
     </td>
     <td>
-      <input type="number" inputmode="numeric" v-model="row.stock" />
+      <input
+        type="number"
+        inputmode="numeric"
+        v-model="row.stock"
+        @focus="selectAllText"
+      />
     </td>
     <td>
       <label class="checkbox">
@@ -54,7 +66,12 @@
     </td>
     <td>
       <div class="with-unit">
-        <input type="number" inputmode="numeric" v-model="row.cost" />
+        <input
+          type="number"
+          inputmode="numeric"
+          v-model="row.cost"
+          @focus="selectAllText"
+        />
         <span>円</span>
       </div>
     </td>
@@ -108,6 +125,7 @@ import { ref, useTemplateRef, computed, inject } from "vue";
 import { convertToBase64 } from "@/utils/imageHelper";
 import { DEFAULT_ROW } from "@/const/default";
 import { gtmTrackEvent } from "@/utils/gtm.ts";
+import { selectAllText } from "@/utils/productHelper";
 
 const props = defineProps<{
   index: number;
@@ -125,7 +143,10 @@ const emit = defineEmits<{
 }>();
 
 const openLightBox = inject<(image: string) => void>("openLightBox");
-const openDialog = inject<(opts?: { message?: string; type?: string } | string) => Promise<boolean>>("openDialog");
+const openDialog =
+  inject<
+    (opts?: { message?: string; type?: string } | string) => Promise<boolean>
+  >("openDialog");
 
 const handlePreview = () => {
   openLightBox?.(props.row.image);
@@ -134,20 +155,28 @@ const handlePreview = () => {
 const category = computed({
   get: () => props.row.terms?.category?.join(",") ?? "",
   set: (value) => {
-    props.row.terms.category = value
-      .split(",")
-      .map((item: string) => item.trim())
-      .filter((item: string) => item !== "");
+    // 新しいtermsオブジェクトと配列を作成して、他の行への影響を防ぐ
+    props.row.terms = {
+      ...props.row.terms,
+      category: value
+        .split(",")
+        .map((item: string) => item.trim())
+        .filter((item: string) => item !== ""),
+    };
   },
 });
 
 const genre = computed({
   get: () => props.row.terms?.genre?.join(",") ?? "",
   set: (value) => {
-    props.row.terms.genre = value
-      .split(",")
-      .map((item: string) => item.trim())
-      .filter((item: string) => item !== "");
+    // 新しいtermsオブジェクトと配列を作成して、他の行への影響を防ぐ
+    props.row.terms = {
+      ...props.row.terms,
+      genre: value
+        .split(",")
+        .map((item: string) => item.trim())
+        .filter((item: string) => item !== ""),
+    };
   },
 });
 
@@ -169,7 +198,9 @@ const handleImageChange = async () => {
 };
 
 const handleRemoveImage = async () => {
-  const message = (props.row.title ? `「${props.row.title}」` : "このアイテム") + "の画像を削除してよろしいですか？";
+  const message =
+    (props.row.title ? `「${props.row.title}」` : "このアイテム") +
+    "の画像を削除してよろしいですか？";
   if (!(await openDialog?.({ message, type: "confirm" }))) return;
 
   if (imageInput.value) {

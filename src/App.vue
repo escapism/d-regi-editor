@@ -7,12 +7,9 @@ import {
   provide,
   nextTick,
 } from "vue";
+import Header from "@/components/Header.vue";
 import Row from "@/components/Row.vue";
 import ContextMenu from "@/components/ContextMenu.vue";
-import ExportCSV from "@/components/ExportCSV.vue";
-import ImportCSV from "@/components/ImportCSV.vue";
-import ExportJSON from "@/components/ExportJSON.vue";
-import ImportJSON from "@/components/ImportJSON.vue";
 import LightBox from "@/components/LightBox.vue";
 import SortableCol from "@/components/SortableCol.vue";
 import CustomDialog from "@/components/CustomDialog.vue";
@@ -53,6 +50,7 @@ const dataRows = ref<(typeof DEFAULT_ROW)[]>([]);
 const addRow = (track: boolean | Event) => {
   const length: number = dataRows.value.push({
     ...DEFAULT_ROW,
+    terms: { ...DEFAULT_ROW.terms },
     sortOrder: dataRows.value.length,
   });
   nextTick(() => {
@@ -68,7 +66,11 @@ const addRow = (track: boolean | Event) => {
 };
 
 const addRowAbove = (index: number) => {
-  dataRows.value.splice(index, 0, { ...DEFAULT_ROW, sortOrder: index });
+  dataRows.value.splice(index, 0, {
+    ...DEFAULT_ROW,
+    terms: { ...DEFAULT_ROW.terms },
+    sortOrder: index,
+  });
   nextTick(() => {
     (
       document.querySelectorAll(".input-title")?.[index] as
@@ -80,7 +82,11 @@ const addRowAbove = (index: number) => {
 };
 
 const addRowBelow = (index: number) => {
-  dataRows.value.splice(index + 1, 0, { ...DEFAULT_ROW, sortOrder: index + 1 });
+  dataRows.value.splice(index + 1, 0, {
+    ...DEFAULT_ROW,
+    terms: { ...DEFAULT_ROW.terms },
+    sortOrder: index + 1,
+  });
   nextTick(() => {
     (
       document.querySelectorAll(".input-title")?.[index + 1] as
@@ -127,7 +133,6 @@ const { register: registerShortcuts } = useShortcuts(
 );
 
 let cleanupShortcuts: (() => void) | null = null;
-let scrollRafId = 0;
 
 onMounted(() => {
   addRow(false);
@@ -138,34 +143,18 @@ onMounted(() => {
     localStorage.setItem("visited", "1");
   }
 
-  const updateScrollX = () => {
-    if (tableContainer.value && table.value) {
-      table.value.style.setProperty(
-        "--scroll-x",
-        `${tableContainer.value.scrollLeft}px`,
-      );
-    }
-    scrollRafId = requestAnimationFrame(updateScrollX);
-  };
-
-  const remSize = parseFloat(
-    getComputedStyle(document.documentElement).fontSize,
-  );
-
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          table.value?.classList.remove("title-stuck");
-          cancelAnimationFrame(scrollRafId);
+          tableContainer.value?.classList.remove("title-stuck");
         } else {
-          table.value?.classList.add("title-stuck");
-          scrollRafId = requestAnimationFrame(updateScrollX);
+          tableContainer.value?.classList.add("title-stuck");
         }
       });
     },
     {
-      rootMargin: `0px 0px 0px ${remSize * -2}px`,
+      threshold: 0.5,
     },
   );
   observer.observe(table.value?.querySelector(".col-title") as HTMLElement);
@@ -173,7 +162,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   cleanupShortcuts?.();
-  cancelAnimationFrame(scrollRafId);
 });
 
 const previewImage = ref<string>("");
@@ -280,35 +268,13 @@ const handleSort = (payload: SortPayload) => {
 
 <template>
   <div class="site">
-    <header class="site-header">
-      <h1 class="site-title">Dレジエディター</h1>
-      <div class="header-controls">
-        <label class="switch-remove-mode checkbox-label"
-          ><span><i-octicon-trash-24 aria-label="削除モード" /></span>
-          <input
-            type="checkbox"
-            v-model="removeMode"
-            @change="gtmTrackEvent('toggle_remove_mode')"
-        /></label>
-        <ExportCSV :data="dataRows" />
-        <ImportCSV @import="handleImport" />
-        <button
-          class="button-theme"
-          @click="toggleTheme"
-          aria-label="テーマを切り替え"
-        >
-          <i-octicon-sun-24 v-if="theme === 'light'" />
-          <i-octicon-moon-24 v-else />
-        </button>
-        <button
-          class="button-manual"
-          @click="openManual"
-          aria-label="操作方法"
-        >
-          <i-octicon-question-24 />
-        </button>
-      </div>
-    </header>
+    <Header
+      v-model:remove-mode="removeMode"
+      :data-rows="dataRows"
+      :theme="theme"
+      :toggle-theme="toggleTheme"
+      @import="handleImport"
+    />
     <div class="table-container" ref="tableContainer">
       <div class="table-wrap">
         <table ref="table">
@@ -379,10 +345,6 @@ const handleSort = (payload: SortPayload) => {
       >
         <i-octicon-trash-24 />
       </button>
-    </div>
-    <div class="controls">
-      <ExportJSON :data="dataRows" />
-      <ImportJSON @import="handleImport" />
     </div>
   </div>
   <Manual ref="manual" />

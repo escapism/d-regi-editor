@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import { isMac } from "@/utils/ChekingHelper";
+import { isMac } from "@/utils/checkingHelper";
 
 export type DefaultRow = {
   key: number | null;

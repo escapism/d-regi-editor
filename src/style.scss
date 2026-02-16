@@ -1,5 +1,8 @@
 @use "sass:math";
 
+$miniTablet: 480px;
+$tablet: 768px;
+
 *,
 *::before,
 *::after {
@@ -16,6 +19,7 @@
   --border-color: #393939;
   --grey: #202020;
   --grey2: #2c2d2e;
+  --grey3: #999;
   --disabled-color: #666;
   --site-padding: 1rem;
   --row-hover-color: #{rgba(#449dfb, 0.2)};
@@ -39,7 +43,7 @@
   -moz-osx-font-smoothing: grayscale;
   interpolate-size: allow-keywords;
 
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: $tablet) {
     --site-padding: 0.75rem;
     font-size: min(16px, math.div(16, 1280) * 100vw);
   }
@@ -47,7 +51,7 @@
 
 [data-theme="light"] {
   --color: #131416;
-  --bg-color: #fff;
+  --bg-color: #fefefe;
   --border-color: #e0e0e0;
   --grey: #f0f0f0;
   --grey2: #e0e0e0;
@@ -93,7 +97,6 @@ table {
   grid-template-columns: min-content 1fr repeat(9, auto) min-content;
   gap: 1px;
   min-width: 100%;
-  margin-bottom: 4rem;
   padding: 1px;
 }
 
@@ -149,9 +152,6 @@ th {
   font-weight: 700;
   white-space: nowrap;
   text-align: center;
-  &:first-child {
-    padding: 0;
-  }
   thead & {
     background: var(--grey);
   }
@@ -186,6 +186,15 @@ td {
       }
     }
   }
+}
+
+ul {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+dl {
+  margin: 1em 0;
 }
 
 dt,
@@ -254,6 +263,32 @@ button {
 }
 
 .button {
+  &-menu {
+    grid-area: menu;
+    aspect-ratio: 1/1;
+    box-shadow: 0 0 0 1px var(--manual-color) inset;
+    padding: 0.3125em;
+    background: var(--bg-color);
+    color: var(--color);
+    svg {
+      font-size: 1.375em;
+    }
+    path {
+      transform-origin: 50% 50%;
+      transition: transform 0.2s;
+    }
+    &[aria-expanded="true"] {
+      path {
+        transform: rotate(45deg);
+        &:first-child {
+          transform: rotate(45deg) translateY(5px);
+        }
+        &:last-child {
+          transform: rotate(-45deg) translateY(-5px);
+        }
+      }
+    }
+  }
   &-theme {
     box-shadow: 0 0 0 1px #666 inset;
     background-color: var(--bg-color);
@@ -262,20 +297,11 @@ button {
   &-remove {
     background-color: var(--red);
   }
-  &-remove-row {
-    width: 2em;
-    height: 2em;
-  }
   &-preview {
     background-color: var(--green);
   }
   &-export {
     background-color: var(--green);
-  }
-  &-import {
-    input {
-      display: none;
-    }
   }
   &-manual {
     padding-inline: 0.2857143em;
@@ -348,6 +374,11 @@ input[type="checkbox"] {
   }
 }
 
+input[type="file"] {
+  display: none;
+}
+
+.menu,
 [role="dialog"],
 [role="alertdialog"] {
   width: 90%;
@@ -367,7 +398,7 @@ input[type="checkbox"] {
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.5em;
+  gap: 0.25em;
   width: fit-content;
   cursor: pointer;
 }
@@ -378,57 +409,131 @@ input[type="checkbox"] {
   max-width: 100%;
   height: 100vh;
   height: 100dvh;
-  padding-bottom: 4rem;
-  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .site-header {
+  display: grid;
+  position: relative;
+  grid-template-areas: "remove controls menu";
+  grid-template-columns: auto 1fr auto;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 0.5em;
   margin-bottom: 1rem;
   padding: var(--site-padding);
   padding-inline: calc(var(--site-padding) + env(safe-area-inset-left));
   padding-bottom: 0;
   font-size: 0.9375em;
-  @media screen and (min-width: 768px) {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-auto-flow: column;
-    align-items: center;
+  @media screen and (min-width: $tablet) {
+    grid-template-areas: "title remove controls  menu";
+    grid-template-columns: auto auto 1fr auto;
+    gap: 0.75em;
     font-size: 1em;
   }
 }
 
 .site-title {
   display: none;
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: $tablet) {
     display: block;
-    margin-left: 2.25rem;
+    margin-left: 2.5rem;
     font-size: 1.25rem;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  right: var(--site-padding);
+  right: calc(var(--site-padding) + env(safe-area-inset-left));
+  z-index: 9999;
+  width: auto;
+  margin-top: 0.5em;
+  padding: 0;
+}
+
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  li {
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.125em;
+    &:first-child {
+      border-radius: 0.4em 0.4em 0 0;
+    }
+  }
+  :is(button, label) {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 0.5em;
+    width: 100%;
+    padding: 0.75em;
+    border-radius: inherit;
+    background: transparent;
+    color: var(--color);
+    text-align: left;
+    cursor: pointer;
+    svg {
+      margin: 0;
+    }
+    &:hover {
+      background: var(--grey);
+    }
+    &:disabled {
+      cursor: not-allowed;
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+}
+
+.x-link {
+  display: flex;
+  grid-area: x;
+  align-items: center;
+  gap: 0.5em;
+  width: fit-content;
+  opacity: 0.5;
+  margin: 0.5em 1em 1em auto;
+  color: inherit;
+  font-size: 0.75em;
+  text-decoration: none;
+  svg {
+    width: 1em;
   }
 }
 
 .header-controls {
   display: flex;
-  justify-content: space-between;
-  @media screen and (min-width: 480px) {
+  grid-area: controls;
+  gap: 0.5em;
+  margin-left: auto;
+  @media screen and (min-width: $miniTablet) {
     justify-content: center;
     gap: 0.5em;
   }
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: $tablet) {
     justify-content: flex-end;
-    font-size: 0.875em;
   }
 }
 
 .switch-remove-mode {
-  margin-right: 0.5rem;
+  grid-area: remove;
   span {
     line-height: 1;
     font-size: 1.25em;
   }
+  @media screen and (min-width: $tablet) {
+    margin-left: 0.5em;
+  }
 }
 
 .table-container {
-  --scroll-x: 375px;
+  --scroll-x: 0;
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -437,6 +542,7 @@ input[type="checkbox"] {
 .table-wrap {
   width: max-content;
   min-width: 100%;
+  margin-bottom: 4.5rem;
   padding-inline: var(--site-padding);
   padding-inline: calc(var(--site-padding) + env(safe-area-inset-left));
 }
@@ -445,8 +551,9 @@ input[type="checkbox"] {
 .clear-rows {
   position: fixed;
   right: 1rem;
-  bottom: 4.5rem;
-  bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  right: calc(1rem + env(safe-area-inset-left));
+  bottom: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
   z-index: 10;
   box-shadow: 0 0 0.5em rgba(#000, 0.25);
   padding: 0.5em;
@@ -480,9 +587,9 @@ input[type="checkbox"] {
 }
 
 .col-index {
-  width: 2.25rem;
+  padding: 0;
   background: var(--bg-color);
-  box-shadow: none;
+  box-shadow: 1px 0 0 var(--bg-color);
 }
 
 .index {
@@ -491,23 +598,24 @@ input[type="checkbox"] {
   left: var(--site-padding);
   z-index: 20;
   align-items: center;
-  justify-content: center;
-  align-self: center;
-  width: 1.875rem;
-  height: 1.875rem;
+  min-width: 1.875rem;
   box-shadow: none;
   margin-right: 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--grey);
+  background: transparent;
+  transition: none;
   font-size: 0.875em;
-  .button-remove {
-    height: 100%;
-  }
 }
 
 .drag-handle {
   display: flex;
-  padding: 0 0.25em;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.875rem;
+  height: 1.875rem;
+  box-shadow: 0 0 0 .5px var(--border-color) inset;
+  padding: 0.125em;
+  border-radius: 0.25rem;
+  background-color: var(--grey);
   vertical-align: middle;
   text-align: center;
   cursor: grab;
@@ -521,11 +629,16 @@ input[type="checkbox"] {
   }
 }
 
+.remove-row {
+  width: 1.875rem;
+  aspect-ratio: 1/1;
+}
+
 .floating-title {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
+  left: 100%;
   z-index: 20;
   max-width: 12.5em;
   height: fit-content;
@@ -536,7 +649,6 @@ input[type="checkbox"] {
   border-radius: 0.25em;
   background: var(--grey);
   box-shadow: 0 0 0 1px var(--border-color);
-  translate: var(--scroll-x) 0;
   transition: opacity 0.2s ease-in-out;
   font-size: 0.75em;
   text-overflow: ellipsis;
@@ -622,6 +734,7 @@ input[type="checkbox"] {
   img {
     max-width: 90vw;
     max-height: 90vh;
+    max-height: 90dvh;
     object-fit: contain;
   }
 }
@@ -632,9 +745,10 @@ input[type="checkbox"] {
   min-width: 10rem;
   padding: 0.25rem 0;
   background: var(--grey2);
-  border: 1px solid var(--border-color);
   border-radius: 0.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 0 0.5px var(--border-color),
+    0 0.625em 1.5em rgba(0, 0, 0, 0.2);
 
   &-item {
     display: block;
@@ -681,8 +795,19 @@ input[type="checkbox"] {
   .button-close {
     margin: 1.5rem auto 0;
   }
-  @media screen and (min-width: 768px) {
+  @media screen and (min-width: $tablet) {
     width: 40rem;
+  }
+}
+
+.shortcut {
+  span {
+    display: inline-block;
+    line-height: 1.7143;
+    vertical-align: top;
+    color: var(--grey3);
+    font-weight: 400;
+    font-size: 0.875em;
   }
 }
 

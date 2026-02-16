@@ -1,5 +1,4 @@
 export const CSV_HEADER = {
-  並び順: "sortOrder",
   ID: "id",
   タイトル: "title",
   価格: "price",

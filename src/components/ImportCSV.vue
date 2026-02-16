@@ -1,5 +1,5 @@
 <template>
-  <label class="button-import"
+  <label
     ><i-octicon-upload-16 /> CSVインポート
     <input type="file" accept="text/csv" @change="importCSV"
       ref="fileInput"
@@ -59,7 +59,7 @@ const importCSV = (event: Event) => {
               }
             }
 
-            return { ...DEFAULT_ROW, ...convertedRow, key: index };
+            return { ...DEFAULT_ROW, ...convertedRow, key: index, sortOrder: index };
           });
           emit("import", importData);
           gtmTrackEvent("import_csv");

@@ -1,5 +1,5 @@
 <template>
-  <button class="button-export" @click="exportCSV" :disabled="data.length === 0">
+  <button @click="exportCSV" :disabled="data.length === 0">
     <i-octicon-download-16 /> CSVエクスポート
   </button>
 </template>
@@ -23,9 +23,7 @@ const exportCSV = () => {
   try {
     let csv = Object.keys(CSV_HEADER).join(",") + "\n";
 
-    const rows = props.data.map((item, index) => {
-      item.sortOrder = index
-
+    const rows = props.data.map((item) => {
       return Object.values(CSV_HEADER)
         .map((value) => {
           if (value === "category") {
@@ -52,7 +50,8 @@ const exportCSV = () => {
     });
 
     csv += rows.join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
+    const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
+    const blob = new Blob([bom, csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
