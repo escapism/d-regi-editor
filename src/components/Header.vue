@@ -6,7 +6,7 @@
       <ImportJSON @import="onImport" />
     </div>
     <label class="switch-remove-mode checkbox-label">
-      <span><i-octicon-trash-24 aria-label="削除モード" /></span>
+      <i-octicon-trash-24 aria-label="削除モード" />
       <input
         type="checkbox"
         :checked="removeMode"

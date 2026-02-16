@@ -2,6 +2,7 @@
 
 $miniTablet: 480px;
 $tablet: 768px;
+$lineHeight: 1.5;
 
 *,
 *::before,
@@ -29,7 +30,7 @@ $tablet: 768px;
   color: var(--color);
   background-color: var(--bg-color);
   font:
-    16px/1.5 "Hiragino Kaku Gothic ProN",
+    16px/#{$lineHeight} "Hiragino Kaku Gothic ProN",
     "Yu Gothic",
     sans-serif;
   font-size: min(16px, math.div(16, 480) * 100vw);
@@ -85,7 +86,6 @@ img {
 
 svg {
   width: 1em;
-  vertical-align: text-bottom;
   :where(button) & {
     display: block;
     margin: auto;
@@ -205,6 +205,10 @@ dd {
 dt {
   margin-bottom: 0.25em;
   font-weight: 700;
+  svg {
+    height: 1em * $lineHeight;
+    vertical-align: top;
+  }
   dd + & {
     margin-top: 0.75em;
   }
@@ -523,8 +527,7 @@ input[type="file"] {
 
 .switch-remove-mode {
   grid-area: remove;
-  span {
-    line-height: 1;
+  svg {
     font-size: 1.25em;
   }
   @media screen and (min-width: $tablet) {
