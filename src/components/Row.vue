@@ -103,8 +103,8 @@
             ref="imageInput"
             @change="handleImageChange"
           />
-          <button class="button-select" @click="handleSelectImage">
-            {{ row.image ? "画像を変更" : "画像を選択" }}
+          <button class="button-select" @click="handleSelectImage" :disabled="converting">
+            {{ imageSelectText }}
           </button>
         </div>
         <button
@@ -182,6 +182,14 @@ const genre = computed({
 
 const imageInput = useTemplateRef<HTMLInputElement>("imageInput");
 const image = ref<File | null>(null);
+const converting = ref(false);
+
+const imageSelectText = computed(() => {
+  if (converting.value) {
+    return "Loading...";
+  }
+  return props.row.image ? "画像を変更" : "画像を選択";
+});
 
 const handleSelectImage = () => {
   imageInput.value?.click();
@@ -191,9 +199,11 @@ const handleSelectImage = () => {
 const handleImageChange = async () => {
   const file = imageInput.value?.files?.[0];
   if (file) {
+    converting.value = true;
     image.value = file;
     const base64 = await convertToBase64(file);
     props.row.image = base64;
+    converting.value = false;
   }
 };
 

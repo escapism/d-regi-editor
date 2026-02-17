@@ -31,6 +31,7 @@ const getTheme = (): "light" | "dark" => {
 const theme = ref<"light" | "dark">(getTheme()); // default to dark
 const table = useTemplateRef<HTMLTableElement>("table");
 const tableContainer = useTemplateRef<HTMLDivElement>("tableContainer");
+const sentinel = useTemplateRef<HTMLDivElement>("sentinel");
 const removeMode = ref(false);
 const focusedRowIndex = ref(-1);
 
@@ -158,6 +159,21 @@ onMounted(() => {
     },
   );
   observer.observe(table.value?.querySelector(".col-title") as HTMLElement);
+
+  const observer2 = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          tableContainer.value?.classList.remove("stuck");
+        } else {
+          tableContainer.value?.classList.add("stuck");
+        }
+      });
+    }, {
+      root: tableContainer.value,
+    }
+  )
+  observer2.observe(sentinel.value as HTMLElement);
 });
 
 onUnmounted(() => {
@@ -169,7 +185,7 @@ const lightBox = useTemplateRef<HTMLDivElement>("lightBox");
 const dialog = useTemplateRef<typeof CustomDialog>("dialog");
 const manual = useTemplateRef<typeof Manual>("manual");
 
-  const openDialog = async (opts : object | string) => {
+const openDialog = async (opts : object | string) => {
   if (!dialog.value) return false;
   return await dialog.value.show(opts);
 }
@@ -277,6 +293,7 @@ const handleSort = (payload: SortPayload) => {
     />
     <div class="table-container" ref="tableContainer">
       <div class="table-wrap">
+        <div class="sentinel" ref="sentinel" aria-hidden="true"></div>
         <table ref="table">
           <thead>
             <tr>
