@@ -47,12 +47,14 @@ const toggleTheme = () => {
 };
 
 const dataRows = ref<(typeof DEFAULT_ROW)[]>([]);
+let keyCount = 0;
 
 const addRow = (track: boolean | Event) => {
   const length: number = dataRows.value.push({
     ...DEFAULT_ROW,
     terms: { ...DEFAULT_ROW.terms },
     sortOrder: dataRows.value.length,
+    key: keyCount++,
   });
   nextTick(() => {
     (
@@ -71,6 +73,7 @@ const addRowAbove = (index: number) => {
     ...DEFAULT_ROW,
     terms: { ...DEFAULT_ROW.terms },
     sortOrder: index,
+    key: keyCount++,
   });
   nextTick(() => {
     (
@@ -87,6 +90,7 @@ const addRowBelow = (index: number) => {
     ...DEFAULT_ROW,
     terms: { ...DEFAULT_ROW.terms },
     sortOrder: index + 1,
+    key: keyCount++,
   });
   nextTick(() => {
     (
@@ -98,12 +102,31 @@ const addRowBelow = (index: number) => {
   gtmTrackEvent("add_row_below");
 };
 
+const copyRow = (index: number) => {
+  const copy = {
+    ...dataRows.value[index],
+    terms: { ...dataRows.value[index]?.terms },
+    id: null,
+    key: keyCount++,
+  };
+  dataRows.value.splice(index + 1, 0, copy);
+  nextTick(() => {
+    (
+      document.querySelectorAll(".input-title")?.[index + 1] as
+        | HTMLElement
+        | undefined
+    )?.focus();
+  });
+  gtmTrackEvent("copy_row");
+};
+
 const clearRows = async () => {
   if (await openDialog({
     message: "すべてのアイテムを削除します。よろしいですか？",
     type: "confirm",
   })) {
     dataRows.value = [];
+    keyCount = 0;
     addRow(false);
     removeMode.value = false;
     gtmTrackEvent("clear_rows");
@@ -233,6 +256,7 @@ provide("closeContextMenu", closeContextMenu);
 const handleImport = (data: (typeof DEFAULT_ROW)[]) => {
   dataRows.value = data;
   removeMode.value = false;
+  keyCount = data.length;
 };
 
 const onContextMenuAction = (fn: () => void) => {
@@ -372,6 +396,7 @@ const handleSort = (payload: SortPayload) => {
     :index="contextMenu.index"
     @add-above="(index) => onContextMenuAction(() => addRowAbove(index))"
     @add-below="(index) => onContextMenuAction(() => addRowBelow(index))"
+    @copy="(index) => onContextMenuAction(() => copyRow(index))"
     @remove="(index) => onContextMenuAction(() => handleRemove(index))"
     @close="closeContextMenu"
   />

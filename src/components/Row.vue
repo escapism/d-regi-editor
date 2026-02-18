@@ -181,7 +181,6 @@ const genre = computed({
 });
 
 const imageInput = useTemplateRef<HTMLInputElement>("imageInput");
-const image = ref<File | null>(null);
 const converting = ref(false);
 
 const imageSelectText = computed(() => {
@@ -200,7 +199,6 @@ const handleImageChange = async () => {
   const file = imageInput.value?.files?.[0];
   if (file) {
     converting.value = true;
-    image.value = file;
     const base64 = await convertToBase64(file);
     props.row.image = base64;
     converting.value = false;
@@ -216,7 +214,6 @@ const handleRemoveImage = async () => {
   if (imageInput.value) {
     imageInput.value.value = "";
   }
-  image.value = null;
   props.row.image = "";
   gtmTrackEvent("image_removed");
 };

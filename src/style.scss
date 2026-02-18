@@ -764,6 +764,10 @@ input[type="file"] {
   backdrop-filter: blur(1px);
 }
 
+.alert-overlay {
+  z-index: 10000;
+}
+
 .image-preview {
   img {
     max-width: 90vw;

@@ -23,6 +23,13 @@
       </button>
       <button
         type="button"
+        class="context-menu-item"
+        @click="emit('copy', index)"
+      >
+        行を複製
+      </button>
+      <button
+        type="button"
         class="context-menu-item context-menu-item-danger"
         @click="emit('remove', index)"
       >
@@ -46,6 +53,7 @@ const emit = defineEmits<{
   (e: "add-above", index: number): void;
   (e: "add-below", index: number): void;
   (e: "remove", index: number): void;
+  (e: "copy", index: number): void;
   (e: "close"): void;
 }>();
 

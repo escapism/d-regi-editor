@@ -51,7 +51,7 @@ defineExpose({ show });
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="isOpen" class="overlay" @click.self="handleCancel">
+      <div v-if="isOpen" class="overlay alert-overlay" @click.self="handleCancel">
         <div
           class="alert-dialog"
           role="alertdialog"

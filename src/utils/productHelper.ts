@@ -43,19 +43,20 @@ export function sanitizeImportedProducts(
   const sanitizedData = [];
 
   for (const [index, product] of products.entries()) {
-    const sanitizedRow: typeof DEFAULT_ROW = { ...DEFAULT_ROW, key: index };
+    const sanitizedRow: typeof DEFAULT_ROW = { ...DEFAULT_ROW };
     for (const key of DEFAULT_ROW_KEYS) {
       if (key === "infiniteStock" || key === "hidden" || key === "r18") {
         (sanitizedRow as any)[key] = product[key] == 1 ? true : false;
       } else if (key === "pubdate") {
         (sanitizedRow as any)[key] = sanitizeDate(product[key] as string);
+      } else if (key === "key") {
+        (sanitizedRow as any)[key] = index;
       } else {
         (sanitizedRow as any)[key] = product[key];
       }
     }
     sanitizedData.push(sanitizedRow);
   }
-
   sanitizedData.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
   return sanitizedData;
