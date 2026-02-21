@@ -324,6 +324,7 @@ const handleSort = (payload: SortPayload) => {
               <th class="col-index"></th>
               <SortableCol
                 property="title"
+                class="col-title"
                 @sort="handleSort"
               >
                 タイトル
