@@ -308,11 +308,6 @@ button {
       }
     }
   }
-  &-theme {
-    box-shadow: 0 0 0 1px #666 inset;
-    background-color: var(--bg-color);
-    color: var(--color);
-  }
   &-remove {
     background-color: var(--red);
   }
@@ -327,14 +322,6 @@ button {
   }
   &-export {
     background-color: var(--green);
-  }
-  &-manual {
-    padding-inline: 0.2857143em;
-    background: var(--manual-color);
-    color: #fff;
-    svg {
-      font-size: 1.4286em;
-    }
   }
 }
 
@@ -718,22 +705,6 @@ input[type="file"] {
     width: auto;
     text-align: right;
   }
-}
-
-.controls {
-  display: flex;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  align-items: center;
-  gap: 0.5em;
-  justify-content: center;
-  padding: 1rem var(--site-padding);
-  padding-inline: calc(var(--site-padding) + env(safe-area-inset-left));
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-color);
 }
 
 .image-control {

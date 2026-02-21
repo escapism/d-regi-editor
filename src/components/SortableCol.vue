@@ -13,7 +13,7 @@
     <div
       v-show="menuVisible"
       ref="menuRef"
-      class="context-menu sortable-col-menu"
+      class="context-menu"
       @click.stop
     >
       <button type="button" class="context-menu-item" @click="sort('desc')">

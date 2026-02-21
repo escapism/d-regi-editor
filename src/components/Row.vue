@@ -9,7 +9,7 @@
     @focusout="onFocusOut"
   >
     <td class="index">
-      <div v-show="!removeMode" class="row-number drag-handle">
+      <div v-show="!removeMode" class="drag-handle">
         {{ index + 1 }}
       </div>
       <button
@@ -24,7 +24,7 @@
 
       <div class="floating-title" aria-hidden="true">{{ row.title }}</div>
     </td>
-    <td class="col-title">
+    <td>
       <input type="text" v-model="row.title" class="input-title" />
     </td>
     <td>
